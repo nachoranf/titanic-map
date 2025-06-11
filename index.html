@@ -68,4 +68,70 @@
     [47, -20],            // Atlántico 2
     [45, -27],            // Atlántico 3
     [43, -33],            // Atlántico 4
-    [42, -38],            // Atlántico
+    [42, -38],            // Atlántico 5
+    [41.7325, -49.9469],  // Hundimiento
+  ];
+
+  // Interpolamos más puntos para suavidad
+  const coords = [];
+  for (let i = 0; i < route.length - 1; i++) {
+    const [lat1, lon1] = route[i];
+    const [lat2, lon2] = route[i + 1];
+    for (let j = 0; j < 3; j++) {
+      const t = j / 3;
+      const lat = lat1 + (lat2 - lat1) * t;
+      const lon = lon1 + (lon2 - lon1) * t;
+      coords.push([lat, lon]);
+    }
+  }
+  coords.push(route[route.length - 1]); // último punto
+
+  const map = L.map('map', {
+    zoomControl: false,
+    dragging: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    tap: false,
+  }).setView([46.5, -30], 4);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const polyline = L.polyline([], {
+    color: 'red',
+    weight: 4
+  }).addTo(map);
+
+  let crossAdded = false;
+
+  const scroller = scrollama();
+  scroller
+    .setup({
+      step: ".step",
+      offset: 0.5,
+      progress: false,
+    })
+    .onStepEnter(response => {
+      const step = parseInt(response.element.dataset.step);
+      const index = Math.floor(step * coords.length / 20);
+      polyline.setLatLngs(coords.slice(0, index + 1));
+
+      // Agregar cruz cuando se llega al último paso
+      if (step === 20 && !crossAdded) {
+        L.marker([41.7325, -49.9469], {
+          icon: L.divIcon({
+            html: '❌',
+            className: '',
+            iconSize: [24, 24]
+          })
+        }).addTo(map).bindTooltip("Hundimiento", { permanent: true, direction: 'left' });
+        crossAdded = true;
+      }
+    });
+</script>
+
+</body>
+</html>
