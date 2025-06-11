@@ -2,51 +2,88 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Scroll Map Journey</title>
+  <title>Viaje del Titanic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body, html { margin: 0; height: 100%; }
-    #map { height: 100vh; width: 100%; position: sticky; top: 0; }
-    .step { height: 100vh; padding: 2em; }
+    html, body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+    #map {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      z-index: 0;
+      pointer-events: none; /* para desactivar interacciones */
+    }
+    .step {
+      height: 100vh;
+      padding: 3em;
+      font-size: 1.5em;
+      background: white;
+      border-bottom: 1px solid #ccc;
+    }
+    #scrolly {
+      position: relative;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
 
 <div id="map"></div>
 
-<!-- Scroll Steps -->
 <div id="scrolly">
-  <div class="step" data-step="1">Start of Journey</div>
-  <div class="step" data-step="2">Next Point</div>
-  <div class="step" data-step="3">Midway</div>
-  <div class="step" data-step="4">End of Journey</div>
+  <div class="step" data-step="1">🚢 Zarpamos de Southampton</div>
+  <div class="step" data-step="2">⚓ Escala en Cherburgo</div>
+  <div class="step" data-step="3">📍 Última parada: Queenstown</div>
+  <div class="step" data-step="4">🌊 Rumbo al Atlántico Norte</div>
+  <div class="step" data-step="5">🆘 Hundimiento cerca de Terranova</div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/scrollama"></script>
 <script>
-  const map = L.map('map').setView([51.5, -0.09], 13); // Change coords
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
+  // Coordenadas aproximadas del recorrido del Titanic
   const coords = [
-    [51.5, -0.09],
-    [51.51, -0.1],
-    [51.52, -0.11],
-    [51.53, -0.12],
+    [50.904, -1.404],     // Southampton
+    [49.637, -1.617],     // Cherburgo
+    [51.849, -8.294],     // Queenstown (Cobh)
+    [42.0, -40.0],        // Océano Atlántico
+    [41.7325, -49.9469],  // Lugar del hundimiento
   ];
 
-  let polyline = L.polyline([], { color: 'blue' }).addTo(map);
+  const map = L.map('map', {
+    zoomControl: false,
+    dragging: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    tap: false,
+  }).setView([46.5, -30], 4); // Vista general del Atlántico
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const polyline = L.polyline([], { color: 'navy', weight: 4 }).addTo(map);
 
   const scroller = scrollama();
   scroller
-    .setup({ step: ".step", offset: 0.5 })
+    .setup({
+      step: ".step",
+      offset: 0.5,
+      progress: false,
+    })
     .onStepEnter(response => {
-      const index = parseInt(response.element.dataset.step) - 1;
-      const segment = coords.slice(0, index + 1);
-      polyline.setLatLngs(segment);
+      const stepIndex = parseInt(response.element.dataset.step);
+      const newSegment = coords.slice(0, stepIndex);
+      polyline.setLatLngs(newSegment);
     });
 </script>
 
 </body>
 </html>
-
