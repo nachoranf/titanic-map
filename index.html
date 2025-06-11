@@ -1,66 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Viaje del Titanic - Scroll Optimizado Final</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      font-family: sans-serif;
-    }
-    #map {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
-    .trigger-container {
-      height: 100vh;
-      position: relative;
-    }
-    .step {
-      position: absolute;
-      top: 0;
-      height: 10vh;
-      width: 100%;
-    }
-    .step:nth-child(n) {
-      top: calc((10vh * (var(--i))));
-    }
-  </style>
-</head>
-<body>
-
-<div id="map"></div>
-
-<div class="trigger-container">
-  <script>
-    const triggerContainer = document.currentScript.parentElement;
-    const totalSteps = 20;
-    for (let i = 1; i <= totalSteps; i++) {
-      const div = document.createElement('div');
-      div.className = 'step';
-      div.dataset.step = i;
-      div.style.setProperty('--i', i - 1);
-      triggerContainer.appendChild(div);
-    }
-  </script>
-</div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/scrollama"></script>
 <script>
-  // Puntos: primeros 2 casi iguales para que no se vea línea al inicio
   const coords = [
-    [49.63700, -1.61700],  // Southampton
-    [49.63705, -1.61705],  // Punto casi igual → línea invisible
+    [49.63700, -1.61700],   // Southampton
+    [49.63705, -1.61705],   // Punto casi idéntico → no visible
     [48.0, -10.0],
     [47.0, -17.0],
     [46.0, -24.0],
@@ -100,6 +41,7 @@
     dashArray: '6, 8'
   }).addTo(map);
 
+  // Marcadores principales
   L.marker(coords[0]).addTo(map).bindTooltip("Southampton", { permanent: true, direction: 'right' });
   L.marker(coords[coords.length - 1]).addTo(map).bindTooltip("Nueva York", { permanent: true, direction: 'left' });
 
@@ -115,21 +57,23 @@
       const step = parseInt(response.element.dataset.step);
       const index = Math.min(step - 1, coords.length - 1);
 
-      // Dibujar línea sólida solo si pasó del segundo punto
+      // Solo empezar a trazar la línea sólida desde el paso 3 en adelante
       if (index >= 2) {
-        const solidSegment = coords.slice(0, Math.min(index + 1, hundimientoIndex + 1));
-        solidLine.setLatLngs(solidSegment);
+        const solidSegment = coords.slice(2, Math.min(index + 1, hundimientoIndex + 1));
+        solidLine.setLatLngs([coords[1], ...solidSegment]); // agregamos el segundo punto como arranque
+      } else {
+        solidLine.setLatLngs([]); // limpiar si volvemos al inicio
       }
 
-      // Solo mostrar línea punteada después del hundimiento
+      // Línea punteada solo si paso el hundimiento
       if (index > hundimientoIndex) {
         const dashedSegment = coords.slice(hundimientoIndex, index + 1);
         dashedLine.setLatLngs(dashedSegment);
       } else {
-        dashedLine.setLatLngs([]); // Limpiar si vuelve hacia arriba
+        dashedLine.setLatLngs([]);
       }
 
-      // Agregar cruz en hundimiento si corresponde
+      // Cruz ❌ en hundimiento (una vez)
       if (index >= hundimientoIndex && !crossAdded) {
         L.marker(hundimiento, {
           icon: L.divIcon({
@@ -144,5 +88,3 @@
     });
 </script>
 
-</body>
-</html>
