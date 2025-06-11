@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Viaje del Titanic - Scroll Reveal</title>
+  <title>Viaje del Titanic Mejorado</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -22,9 +22,8 @@
       pointer-events: none;
     }
 
-    /* Invisible scroll triggers */
     .trigger-container {
-      height: 500vh; /* 5 puntos = 5 pasos de scroll */
+      height: 1500vh; /* más pasos = scroll suave */
       position: relative;
     }
     .step {
@@ -33,11 +32,10 @@
       height: 100vh;
       width: 100%;
     }
-    .step:nth-child(1) { top: 0vh; }
-    .step:nth-child(2) { top: 100vh; }
-    .step:nth-child(3) { top: 200vh; }
-    .step:nth-child(4) { top: 300vh; }
-    .step:nth-child(5) { top: 400vh; }
+    /* Colocar cada step uno debajo del otro */
+    .step:nth-child(n) {
+      top: calc((100vh * (var(--i))));
+    }
   </style>
 </head>
 <body>
@@ -45,74 +43,29 @@
 <div id="map"></div>
 
 <div class="trigger-container">
-  <div class="step" data-step="1"></div>
-  <div class="step" data-step="2"></div>
-  <div class="step" data-step="3"></div>
-  <div class="step" data-step="4"></div>
-  <div class="step" data-step="5"></div>
+  <!-- Generamos más pasos invisibles con JS -->
+  <script>
+    const triggerContainer = document.currentScript.parentElement;
+    const totalSteps = 20;
+    for (let i = 1; i <= totalSteps; i++) {
+      const div = document.createElement('div');
+      div.className = 'step';
+      div.dataset.step = i;
+      div.style.setProperty('--i', i - 1);
+      triggerContainer.appendChild(div);
+    }
+  </script>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/scrollama"></script>
 <script>
-  const coords = [
+  const route = [
     [50.904, -1.404],     // Southampton
     [49.637, -1.617],     // Cherburgo
-    [51.849, -8.294],     // Queenstown (Cobh)
-    [42.0, -40.0],        // Océano Atlántico
-    [41.7325, -49.9469],  // Hundimiento
-  ];
-
-  const labels = [
-    "Southampton",
-    "Cherburgo",
-    "Queenstown",
-    "Atlántico",
-    "Hundimiento"
-  ];
-
-  const map = L.map('map', {
-    zoomControl: false,
-    dragging: false,
-    scrollWheelZoom: false,
-    doubleClickZoom: false,
-    boxZoom: false,
-    keyboard: false,
-    tap: false,
-  }).setView([46.5, -30], 4);
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
-
-  const polyline = L.polyline([], {
-    color: 'navy',
-    weight: 4
-  }).addTo(map);
-
-  const markers = [];
-
-  const scroller = scrollama();
-  scroller
-    .setup({
-      step: ".step",
-      offset: 0.5,
-      progress: false,
-    })
-    .onStepEnter(response => {
-      const index = parseInt(response.element.dataset.step);
-      const newSegment = coords.slice(0, index);
-      polyline.setLatLngs(newSegment);
-
-      // BONUS: mostrar marcador solo si aún no está
-      if (!markers[index - 1]) {
-        const marker = L.marker(coords[index - 1])
-          .bindTooltip(labels[index - 1], { permanent: true, direction: 'right' })
-          .addTo(map);
-        markers[index - 1] = marker;
-      }
-    });
-</script>
-
-</body>
-</html>
+    [51.849, -8.294],     // Queenstown
+    [49, -14],            // Atlántico 1
+    [47, -20],            // Atlántico 2
+    [45, -27],            // Atlántico 3
+    [43, -33],            // Atlántico 4
+    [42, -38],            // Atlántico
