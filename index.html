@@ -39,32 +39,7 @@
 <body>
 
 <div id="map"></div>
-
-<div class="trigger-container">
-  <script>
-    const triggerContainer = document.currentScript.parentElement;
-
-    const coords = [
-      [49.637, -1.61700],[50.743, -4.95550],[51.849, -8.29400],[51.293, -10.81000],
-      [50.737, -13.32600],[49.903, -17.10000],[49.069, -20.87400],[48.235, -24.64800],
-      [47.401, -28.42200],[46.567, -32.19600],[45.733, -35.97000],[44.899, -39.74400],
-      [44.065, -43.51800],[43.231, -47.29200],[42.397, -51.06600],[41.563, -54.84000],
-      [41.020, -59.00000],[40.7128, -74.0060]
-    ];
-
-    const hundimiento = [41.7325, -49.9469];
-    const hundimientoIndex = 13;
-
-    const totalSteps = coords.length;
-    for (let i = 1; i <= totalSteps; i++) {
-      const div = document.createElement('div');
-      div.className = 'step';
-      div.dataset.step = i;
-      div.style.setProperty('--i', i - 1);
-      triggerContainer.appendChild(div);
-    }
-  </script>
-</div>
+<div class="trigger-container" id="steps"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/scrollama"></script>
@@ -80,6 +55,16 @@
   const hundimiento = [41.7325, -49.9469];
   const hundimientoIndex = 13;
 
+  // Crear dinámicamente los pasos
+  const container = document.getElementById('steps');
+  coords.forEach((_, i) => {
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.dataset.step = i + 1;
+    div.style.setProperty('--i', i);
+    container.appendChild(div);
+  });
+
   const map = L.map('map', {
     zoomControl: false,
     dragging: false,
@@ -90,7 +75,7 @@
     tap: false
   }).setView([45, -40], 4);
 
-  // Estilo más colorido con Stamen Toner Lite
+  // Mapa más colorido con Stamen Toner Lite
   L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
     attribution: 'Map tiles by Stamen Design, CC BY 3.0 — Map data © OpenStreetMap contributors'
   }).addTo(map);
