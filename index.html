@@ -1,26 +1,51 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Viaje del Titanic</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="leaflet.css">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <title>Scroll Map Journey</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body, html { margin: 0; height: 100%; }
+    #map { height: 100vh; width: 100%; position: sticky; top: 0; }
+    .step { height: 100vh; padding: 2em; }
+  </style>
 </head>
 <body>
-    <div id="map"></div>
-    <div id="scrolly">
-        <div id="graphic">
-            <div class="step" data-step="0">Salida de Southampton</div>
-            <div class="step" data-step="1">Escala en Cherbourg</div>
-            <div class="step" data-step="2">Escala en Queenstown</div>
-            <div class="step" data-step="3">Última ubicación conocida</div>
-        </div>
-    </div>
 
-    <script src="leaflet.js"></script>
-    <script src="scrollama.min.js"></script>
-    <script src="script.js"></script>
+<div id="map"></div>
+
+<!-- Scroll Steps -->
+<div id="scrolly">
+  <div class="step" data-step="1">Start of Journey</div>
+  <div class="step" data-step="2">Next Point</div>
+  <div class="step" data-step="3">Midway</div>
+  <div class="step" data-step="4">End of Journey</div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/scrollama"></script>
+<script>
+  const map = L.map('map').setView([51.5, -0.09], 13); // Change coords
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+  const coords = [
+    [51.5, -0.09],
+    [51.51, -0.1],
+    [51.52, -0.11],
+    [51.53, -0.12],
+  ];
+
+  let polyline = L.polyline([], { color: 'blue' }).addTo(map);
+
+  const scroller = scrollama();
+  scroller
+    .setup({ step: ".step", offset: 0.5 })
+    .onStepEnter(response => {
+      const index = parseInt(response.element.dataset.step) - 1;
+      const segment = coords.slice(0, index + 1);
+      polyline.setLatLngs(segment);
+    });
+</script>
+
 </body>
 </html>
