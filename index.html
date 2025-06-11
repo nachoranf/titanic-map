@@ -57,27 +57,26 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/scrollama"></script>
 <script>
-  // Coordenadas: primeros puntos superpuestos
-const coords = [
-  [49.63700, -1.61700],  // Southampton
-  [49.63701, -1.61701],
-  [49.63702, -1.61702],
-  [49.63703, -1.61703],
-  [49.63704, -1.61704],
-  [49.63705, -1.61705],
-  [48.0, -10.0],
-  [47.0, -17.0],
-  [46.0, -24.0],
-  [45.0, -31.0],
-  [44.0, -38.0],
-  [43.0, -45.0],
-  [42.5, -49.9469],       // Hundimiento
-  [41.5, -56.0],
-  [40.7128, -74.0060]     // Nueva York
-];
+  // Coordenadas: primeros 6 súper cercanos
+  const coords = [
+    [49.63700, -1.61700],  // Southampton
+    [49.63701, -1.61701],
+    [49.63702, -1.61702],
+    [49.63703, -1.61703],
+    [49.63704, -1.61704],
+    [49.63705, -1.61705],
+    [48.0, -10.0],
+    [47.0, -17.0],
+    [46.0, -24.0],
+    [45.0, -31.0],
+    [44.0, -38.0],
+    [43.0, -45.0],
+    [42.5, -49.9469],       // Hundimiento
+    [41.5, -56.0],
+    [40.7128, -74.0060]     // Nueva York
+  ];
 
-
-  const hundimientoIndex = 9;
+  const hundimientoIndex = 12;
   const hundimiento = coords[hundimientoIndex];
 
   const map = L.map('map', {
@@ -109,12 +108,6 @@ const coords = [
   L.marker(coords[coords.length - 1]).addTo(map).bindTooltip("Nueva York", { permanent: true, direction: 'left' });
 
   let crossAdded = false;
-  let hasScrolled = false;
-
-  // Detectar primer scroll manual
-  window.addEventListener('scroll', () => {
-    hasScrolled = true;
-  });
 
   const scroller = scrollama();
   scroller
@@ -123,20 +116,18 @@ const coords = [
       offset: 0.5
     })
     .onStepEnter(response => {
-      if (!hasScrolled) return; // 🚫 Evitar dibujar al cargar
-
       const step = parseInt(response.element.dataset.step);
       const index = Math.min(step - 1, coords.length - 1);
 
-      // Línea sólida: desde paso 3 (índice >= 2)
-      if (index >= 2) {
+      // Línea sólida
+      if (index >= 1) {
         const solidSegment = coords.slice(0, Math.min(index + 1, hundimientoIndex + 1));
         solidLine.setLatLngs(solidSegment);
       } else {
         solidLine.setLatLngs([]);
       }
 
-      // Línea punteada: solo después del hundimiento
+      // Línea punteada
       if (index > hundimientoIndex) {
         const dashedSegment = coords.slice(hundimientoIndex, index + 1);
         dashedLine.setLatLngs(dashedSegment);
@@ -144,7 +135,7 @@ const coords = [
         dashedLine.setLatLngs([]);
       }
 
-      // Cruz ❌ en punto de hundimiento
+      // Cruz ❌
       if (index >= hundimientoIndex && !crossAdded) {
         L.marker(hundimiento, {
           icon: L.divIcon({
