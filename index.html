@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Viaje del Titanic - Scroll Rápido Final</title>
+  <title>Viaje del Titanic - Scroll Rápido</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -21,19 +21,16 @@
       z-index: 0;
       pointer-events: none;
     }
-
     .trigger-container {
-      height: 200vh; /* scroll más rápido que antes */
+      height: 200vh; /* ← scroll más corto → aparición más rápida */
       position: relative;
     }
-
     .step {
       position: absolute;
       top: 0;
       height: 100vh;
       width: 100%;
     }
-
     .step:nth-child(n) {
       top: calc((100vh * (var(--i))));
     }
@@ -46,20 +43,7 @@
 <div class="trigger-container">
   <script>
     const triggerContainer = document.currentScript.parentElement;
-    const coords = [
-      [49.637, -1.61700],[50.190, -3.28625],[50.743, -4.95550],[51.296, -6.62475],[51.849, -8.29400],
-      [51.571, -9.55200],[51.293, -10.81000],[51.015, -12.06800],[50.737, -13.32600],[50.459, -14.58400],
-      [50.181, -15.84200],[49.903, -17.10000],[49.625, -18.35800],[49.347, -19.61600],[49.069, -20.87400],
-      [48.791, -22.13200],[48.513, -23.39000],[48.235, -24.64800],[47.957, -25.90600],[47.679, -27.16400],
-      [47.401, -28.42200],[47.123, -29.68000],[46.845, -30.93800],[46.567, -32.19600],[46.289, -33.45400],
-      [46.011, -34.71200],[45.733, -35.97000],[45.455, -37.22800],[45.177, -38.48600],[44.899, -39.74400],
-      [44.621, -41.00200],[44.343, -42.26000],[44.065, -43.51800],[43.787, -44.77600],[43.509, -46.03400],
-      [43.231, -47.29200],[42.953, -48.55000],[42.675, -49.80800],[42.397, -51.06600],[42.119, -52.32400],
-      [41.841, -53.58200],[41.563, -54.84000],[41.500, -55.00000],[41.380, -56.00000],[41.260, -57.00000],
-      [41.140, -58.00000],[41.020, -59.00000],[40.900, -60.00000],[40.800, -62.00300],[40.7128, -74.0060]
-    ];
-    const totalSteps = coords.length;
-
+    const totalSteps = 50;
     for (let i = 1; i <= totalSteps; i++) {
       const div = document.createElement('div');
       div.className = 'step';
