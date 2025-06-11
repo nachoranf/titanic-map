@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Viaje del Titanic con Ruta Completa</title>
+  <title>Recorrido completo del Titanic</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -42,7 +42,6 @@
 <div id="map"></div>
 
 <div class="trigger-container">
-  <!-- 75 pasos invisibles -->
   <script>
     const triggerContainer = document.currentScript.parentElement;
     const totalSteps = 75;
@@ -59,25 +58,21 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/scrollama"></script>
 <script>
-  // 75 puntos del recorrido total (incluyendo Nueva York)
   const coords = [
-    [50.904000, -1.404000], [50.904000, -1.404000], [51.204232, -1.858152],
-    [50.674016, -1.694976], [49.866984, -1.326024], [49.071801, -1.182626],
-    [49.094480, -1.252224], [49.590221, -1.637958], [50.371444, -2.258987],
-    [51.255572, -3.034467], [52.060026, -3.883556], [52.602229, -4.725411],
-    [52.699601, -5.479190], [52.169564, -6.064051], [50.829541, -6.399150],
-    [48.496951, -6.403646], [45.989217, -6.096695], [44.103761, -5.497456],
-    [43.648004, -4.625086], [44.429368, -3.498741], [46.255275, -2.137580],
-    [48.933146, -0.560758], [52.270404, 1.132586], [56.074470, 3.012314],
-    [60.152765, 5.059291], [64.312711, 7.244380], [68.361730, 9.538447],
-    [72.107242, 11.912356], [75.356669, 14.336972], [77.917433, 16.783160],
-    [79.596954, 19.221783], [80.202654, 21.623707], [79.541955, 23.959796],
-    [77.422277, 26.200916], [73.651041, 28.317930], [68.035669, 30.281705],
-    [60.383580, 32.063103], [50.502197, 33.632990], [41.7325, -49.9469],
-    [41.5047, -52.5952], [41.2769, -55.2435], [41.0491, -57.8918],
-    [40.8213, -60.5401], [40.5935, -63.1884], [40.3657, -65.8367],
-    [40.1379, -68.4850], [39.9101, -71.1333], [39.6823, -73.7816],
-    [40.7128, -74.0060]
+    [50.904000, -1.404000],[51.060232, -1.714152],[50.602016, -1.622976],
+    [49.938984, -1.398024],[49.480768, -1.306848],[49.135291, -1.388101],
+    [49.809480, -1.669439],[50.410265, -2.178519],[50.844573, -2.942998],
+    [51.019334, -3.990532],[50.841476, -5.348778],[50.217928, -7.045391],
+    [49.055619, -9.108028],[47.261477, -11.564344],[45.082206, -13.936445],
+    [42.925790, -15.984145],[41.199212, -17.467254],[40.309457, -18.145582],
+    [40.663510, -17.778938],[42.668353, -16.127132],[45.730971, -13.049974],
+    [49.258347, -8.407273],[52.657466, -2.058838],[55.335311, 6.146423],
+    [56.698865, 16.358570],[56.155114, 28.728673],[53.111041, 43.407801],
+    [47.973630, 60.547026],[41.732500, -49.946900],[41.524540, -52.343380],
+    [41.306670, -54.739860],[41.078890, -57.136340],[40.841200, -59.532820],
+    [40.593600, -61.929300],[40.336090, -64.325780],[40.068670, -66.722260],
+    [39.791340, -69.118740],[39.504100, -71.515220],[39.206950, -73.911700],
+    [40.712800, -74.006000]
   ];
 
   const map = L.map('map', {
@@ -105,18 +100,20 @@
     dashArray: '6, 8'
   }).addTo(map);
 
-  // marcadores fijos
-  L.marker([50.904, -1.404]).addTo(map)
-    .bindTooltip("Southampton", { permanent: true, direction: 'right' });
+  const southampton = [50.904, -1.404];
+  const hundimiento = [41.7325, -49.9469];
+  const nuevaYork = [40.7128, -74.0060];
 
-  L.marker([40.7128, -74.0060]).addTo(map)
-    .bindTooltip("Nueva York", { permanent: true, direction: 'left' });
+  // Posiciones de referencia
+  const hundimientoIndex = coords.findIndex(([lat, lon]) =>
+    Math.abs(lat - hundimiento[0]) < 0.0001 && Math.abs(lon - hundimiento[1]) < 0.0001
+  );
+
+  // Marcadores
+  L.marker(southampton).addTo(map).bindTooltip("Southampton", { permanent: true, direction: 'right' });
+  L.marker(nuevaYork).addTo(map).bindTooltip("Nueva York", { permanent: true, direction: 'left' });
 
   let crossAdded = false;
-  const hundimientoCoord = [41.7325, -49.9469];
-  const hundimientoIndex = coords.findIndex(([lat, lon]) =>
-    lat === hundimientoCoord[0] && lon === hundimientoCoord[1]
-  );
 
   const scroller = scrollama();
   scroller
@@ -129,18 +126,16 @@
       const step = parseInt(response.element.dataset.step);
       const index = Math.floor(step * coords.length / 75);
 
-      // segmento hasta hundimiento (sólido)
       const solidSegment = coords.slice(0, Math.min(index + 1, hundimientoIndex + 1));
       solidLine.setLatLngs(solidSegment);
 
-      // segmento después del hundimiento (punteado)
       if (index > hundimientoIndex) {
         const dashedSegment = coords.slice(hundimientoIndex, index + 1);
         dashedLine.setLatLngs(dashedSegment);
       }
 
       if (index >= hundimientoIndex && !crossAdded) {
-        L.marker(hundimientoCoord, {
+        L.marker(hundimiento, {
           icon: L.divIcon({
             html: '❌',
             className: '',
