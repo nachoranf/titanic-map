@@ -89,9 +89,10 @@
     tap: false,
   }).setView([45, -40], 4);
 
-  L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
+  
 
   const solidLine = L.polyline([], {
     color: 'red',
