@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Viaje del Titanic - Versión Final Corregida</title>
+  <title>Viaje del Titanic - Corregido Final</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -115,7 +115,7 @@
     })
     .onStepEnter(response => {
       const step = parseInt(response.element.dataset.step);
-      const index = Math.floor(step * coords.length / 50);
+      const index = Math.min(step - 1, coords.length - 1);
 
       const solidSegment = coords.slice(0, Math.min(index + 1, hundimientoIndex + 1));
       solidLine.setLatLngs(solidSegment);
