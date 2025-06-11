@@ -2,32 +2,25 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Viaje del Titanic</title>
+  <title>Recorrido del Titanic</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     html, body {
       margin: 0;
-      font-family: sans-serif;
+      padding: 0;
     }
     #map {
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
       height: 100vh;
       width: 100%;
       z-index: 0;
-      pointer-events: none; /* para desactivar interacciones */
+      pointer-events: none;
     }
-    .step {
+    .spacer {
       height: 100vh;
-      padding: 3em;
-      font-size: 1.5em;
-      background: white;
-      border-bottom: 1px solid #ccc;
-    }
-    #scrolly {
-      position: relative;
-      z-index: 10;
     }
   </style>
 </head>
@@ -35,24 +28,31 @@
 
 <div id="map"></div>
 
-<div id="scrolly">
-  <div class="step" data-step="1">🚢 Zarpamos de Southampton</div>
-  <div class="step" data-step="2">⚓ Escala en Cherburgo</div>
-  <div class="step" data-step="3">📍 Última parada: Queenstown</div>
-  <div class="step" data-step="4">🌊 Rumbo al Atlántico Norte</div>
-  <div class="step" data-step="5">🆘 Hundimiento cerca de Terranova</div>
-</div>
+<!-- Scroll triggers (invisibles) -->
+<div class="spacer" data-step="1"></div>
+<div class="spacer" data-step="2"></div>
+<div class="spacer" data-step="3"></div>
+<div class="spacer" data-step="4"></div>
+<div class="spacer" data-step="5"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/scrollama"></script>
 <script>
-  // Coordenadas aproximadas del recorrido del Titanic
+  // Coordenadas del viaje del Titanic
   const coords = [
     [50.904, -1.404],     // Southampton
     [49.637, -1.617],     // Cherburgo
     [51.849, -8.294],     // Queenstown (Cobh)
     [42.0, -40.0],        // Océano Atlántico
-    [41.7325, -49.9469],  // Lugar del hundimiento
+    [41.7325, -49.9469],  // Hundimiento
+  ];
+
+  const labels = [
+    "Southampton",
+    "Cherburgo",
+    "Queenstown",
+    "Océano Atlántico",
+    "Hundimiento"
   ];
 
   const map = L.map('map', {
@@ -63,25 +63,41 @@
     boxZoom: false,
     keyboard: false,
     tap: false,
-  }).setView([46.5, -30], 4); // Vista general del Atlántico
+  }).setView([46.5, -30], 4);
 
+  // Mapa base claro
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  const polyline = L.polyline([], { color: 'navy', weight: 4 }).addTo(map);
+  // Línea que se va construyendo
+  const polyline = L.polyline([], {
+    color: 'navy',
+    weight: 4
+  }).addTo(map);
 
+  // Lista para guardar los marcadores que se van revelando
+  const markers = [];
+
+  // Scrollama setup
   const scroller = scrollama();
+
   scroller
     .setup({
-      step: ".step",
+      step: ".spacer",
       offset: 0.5,
       progress: false,
     })
     .onStepEnter(response => {
-      const stepIndex = parseInt(response.element.dataset.step);
-      const newSegment = coords.slice(0, stepIndex);
+      const index = parseInt(response.element.dataset.step);
+      const newSegment = coords.slice(0, index);
       polyline.setLatLngs(newSegment);
+
+      // BONUS: Agregar marcador si aún no fue agregado
+      if (!markers[index - 1]) {
+        const marker = L.marker(coords[index - 1]).bindTooltip(labels[index - 1], { permanent: true, direction: 'right' }).addTo(map);
+        markers[index - 1] = marker;
+      }
     });
 </script>
 
