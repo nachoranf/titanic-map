@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Viaje del Titanic - Scroll Optimizado</title>
+  <title>Viaje del Titanic - Scroll Optimizado Final</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -22,13 +22,13 @@
       pointer-events: none;
     }
     .trigger-container {
-      height: 100vh; /* menor scroll → más rápido */
+      height: 100vh;
       position: relative;
     }
     .step {
       position: absolute;
       top: 0;
-      height: 10vh; /* cada paso ocupa menos espacio → avanza más rápido */
+      height: 10vh;
       width: 100%;
     }
     .step:nth-child(n) {
@@ -43,7 +43,7 @@
 <div class="trigger-container">
   <script>
     const triggerContainer = document.currentScript.parentElement;
-    const totalSteps = 20; // menos pasos, cada uno más significativo
+    const totalSteps = 20;
     for (let i = 1; i <= totalSteps; i++) {
       const div = document.createElement('div');
       div.className = 'step';
@@ -57,22 +57,22 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/scrollama"></script>
 <script>
-  // Coordenadas simplificadas (menos puntos, más distancia entre ellos)
+  // Puntos: primeros 2 casi iguales para que no se vea línea al inicio
   const coords = [
-    [49.637, -1.61700],    // Southampton
-    [49.0, -10.0],
-    [48.0, -17.0],
-    [47.0, -24.0],
-    [46.0, -31.0],
-    [45.0, -38.0],
-    [44.0, -45.0],
-    [43.0, -49.9469],      // Hundimiento
-    [42.0, -56.0],
-    [41.0, -62.0],
-    [40.7128, -74.0060]    // Nueva York
+    [49.63700, -1.61700],  // Southampton
+    [49.63705, -1.61705],  // Punto casi igual → línea invisible
+    [48.0, -10.0],
+    [47.0, -17.0],
+    [46.0, -24.0],
+    [45.0, -31.0],
+    [44.0, -38.0],
+    [43.0, -45.0],
+    [42.5, -49.9469],       // Hundimiento
+    [41.5, -56.0],
+    [40.7128, -74.0060]     // Nueva York
   ];
 
-  const hundimientoIndex = 7;
+  const hundimientoIndex = 8;
   const hundimiento = coords[hundimientoIndex];
 
   const map = L.map('map', {
@@ -115,26 +115,28 @@
       const step = parseInt(response.element.dataset.step);
       const index = Math.min(step - 1, coords.length - 1);
 
-      // Línea sólida hasta el hundimiento
-      if (index >= 1) {
+      // Dibujar línea sólida solo si pasó del segundo punto
+      if (index >= 2) {
         const solidSegment = coords.slice(0, Math.min(index + 1, hundimientoIndex + 1));
         solidLine.setLatLngs(solidSegment);
       }
 
-      // Línea punteada posterior al hundimiento
+      // Solo mostrar línea punteada después del hundimiento
       if (index > hundimientoIndex) {
         const dashedSegment = coords.slice(hundimientoIndex, index + 1);
         dashedLine.setLatLngs(dashedSegment);
+      } else {
+        dashedLine.setLatLngs([]); // Limpiar si vuelve hacia arriba
       }
 
-      // Colocar cruz justo sobre el punto de hundimiento
-      if (index === hundimientoIndex && !crossAdded) {
+      // Agregar cruz en hundimiento si corresponde
+      if (index >= hundimientoIndex && !crossAdded) {
         L.marker(hundimiento, {
           icon: L.divIcon({
             html: '❌',
             className: '',
             iconSize: [24, 24],
-            iconAnchor: [12, 12] // Centrar ícono perfectamente
+            iconAnchor: [12, 12]
           })
         }).addTo(map).bindTooltip("Hundimiento", { permanent: true, direction: 'left' });
         crossAdded = true;
